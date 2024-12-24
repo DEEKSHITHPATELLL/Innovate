@@ -1,0 +1,292 @@
+.people-page {
+  background: linear-gradient(135deg, #f6f9fc 0%, #f1f4f8 100%);
+  min-height: 100vh;
+  padding: 3rem 0;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 4rem;
+  padding: 2.5rem 0;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.1) 0%,
+    rgba(79, 70, 229, 0.1) 100%
+  );
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.page-header h1 {
+  font-size: 3.2rem;
+  font-weight: 900;
+  color: #1a202c;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+.page-header p {
+  font-size: 1.35rem;
+  color: #4a5568;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.search-box {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6366f1;
+}
+
+.search-box input {
+  padding-left: 3rem;
+  height: 3.5rem;
+  border-radius: 10px;
+  border: 2px solid rgba(99, 102, 241, 0.2);
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.search-box input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.filter-section {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.filter-icon {
+  color: #6366f1;
+}
+
+.filter-section select {
+  height: 3.5rem;
+  border-radius: 10px;
+  border: 2px solid rgba(99, 102, 241, 0.2);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  padding: 0.5rem;
+  max-width: 250px;
+}
+
+.filter-section select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.highlighted-topics h3 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.topic-card {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.topic-card .card-body {
+  padding: 15px;
+}
+
+.topic-card .card-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0b0b0b;
+  margin-bottom: 1rem;
+}
+
+.topic-card .card-text {
+  font-size: 1.1rem;
+  color: #0e0e0e;
+  line-height: 1.6;
+}
+
+.topic-card:hover {
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-10px);
+}
+
+.topic-card .card-body p {
+  font-size: 1rem;
+  color: #0a0a0a;
+}
+
+.expertise-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.expertise-tag {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.expertise-tag:hover {
+  background: rgba(99, 102, 241, 0.2);
+}
+
+.person-location {
+  color: #4a5568;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.social-links {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.social-links a {
+  color: #6366f1;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+  color: #4f46e5;
+  transform: scale(1.1);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .people-page {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  }
+
+  .page-header {
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.2) 0%,
+      rgba(79, 70, 229, 0.2) 100%
+    );
+  }
+
+  .page-header h1 {
+    color: #f7fafc;
+  }
+  .page-header h2{
+    color:white;
+  }
+
+  .page-header p {
+    color: #e2e8f0;
+  }
+
+  .topic-card {
+    background: #2d3748;
+    color: #e2e8f0;
+  }
+
+  .topic-card .card-title {
+    color: #030303;
+  }
+
+  .topic-card .card-text {
+    color: #e2e8f0;
+  }
+
+  .expertise-tag {
+    background: rgba(99, 102, 241, 0.2);
+  }
+
+  .person-location {
+    color: #e2e8f0;
+  }
+
+  .social-links a {
+    color: #6366f1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .page-header h1 {
+    font-size: 2.8rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .page-header {
+    padding: 1.5rem 0;
+  }
+
+  .page-header h1 {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .people-page {
+    padding: 1.5rem 0;
+  }
+
+  .page-header {
+    margin-bottom: 2.5rem;
+    padding: 1rem 0;
+  }
+
+  .page-header h1 {
+    font-size: 1.9rem;
+  }
+
+  .page-header p {
+    font-size: 1rem;
+  }
+
+  .filter-section {
+    margin-top: 1.5rem;
+  }
+
+  .topic-card {
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .search-box input,
+  .filter-section select {
+    height: 2.8rem;
+  }
+
+  .person-image {
+    height: 150px;
+  }
+
+  .expertise-tag {
+    font-size: 0.85rem;
+  }
+  .h2{
+    color:white;
+  }
+}
+

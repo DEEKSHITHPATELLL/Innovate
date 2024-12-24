@@ -1,0 +1,246 @@
+.startup-home {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Header Section */
+.header-section {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white;
+  text-align: center;
+}
+
+.header-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  background: linear-gradient(to right, #ffffff, #e0e7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-subtitle {
+  font-size: 1.25rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Stats Section */
+.stats-section {
+  padding: 4rem 0;
+  background: white;
+}
+
+.stat-card {
+  padding: 2rem;
+  border: none;
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-10px);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+/* Insights Section */
+.insights-section {
+  padding: 4rem 0;
+  background: #f8fafc;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+  color: #1f2937;
+}
+
+.insight-card {
+  padding: 2rem;
+  border: none;
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.insight-card:hover {
+  transform: translateY(-10px);
+}
+
+.insight-icon {
+  font-size: 2rem;
+  color: #6366f1;
+  margin-bottom: 1.5rem;
+}
+
+.insight-card .card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.insight-card .card-text {
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+/* Predictions Section */
+.predictions-section {
+  padding: 4rem 0;
+  background: white;
+}
+
+.prediction-card {
+  padding: 2rem;
+  border: none;
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.prediction-card:hover {
+  transform: translateY(-10px);
+}
+
+.prediction-stats {
+  margin-top: 1.5rem;
+}
+
+.prediction-stat {
+  margin-bottom: 1rem;
+}
+
+.prediction-stat span {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.progress {
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: linear-gradient(to right, #6366f1, #4f46e5);
+  transition: width 0.5s ease;
+}
+
+/* Actions Section */
+.actions-section {
+  padding: 4rem 0;
+  background: #f8fafc;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  padding: 2rem;
+  text-align: center;
+  color: #6366f1;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header-title {
+    font-size: 2rem;
+  }
+  
+  .header-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .stat-card,
+  .insight-card,
+  .prediction-card {
+    margin-bottom: 2rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-buttons .btn {
+    width: 100%;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .startup-home {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  }
+  
+  .stats-section,
+  .predictions-section {
+    background: #1a1a1a;
+  }
+  
+  .insights-section,
+  .actions-section {
+    background: #2d2d2d;
+  }
+  
+  .section-title {
+    color: #ffffff;
+  }
+  
+  .section-subtitle {
+    color: #cccccc;
+  }
+  
+  .stat-card,
+  .insight-card,
+  .prediction-card {
+    background: #333333;
+    color: #ffffff;
+  }
+  
+  .stat-label,
+  .card-text {
+    color: #cccccc;
+  }
+  
+  .progress {
+    background-color: #4a4a4a;
+  }
+}
