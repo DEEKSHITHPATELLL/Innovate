@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FiBarChart2 } from 'react-icons/fi';
+import { FiBarChart2, FiMessageSquare } from 'react-icons/fi';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale } from 'chart.js';
 import './StartupHome.css';
@@ -11,6 +12,7 @@ import './StartupHome.css';
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale);
 
 const StartupHome = () => {
+  const navigate = useNavigate();
   // State variables
   const [startupInfo, setStartupInfo] = useState({
     location: '',
@@ -20,8 +22,8 @@ const StartupHome = () => {
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [loading, setLoading] = useState(false);  
   const [error, setError] = useState('');
-  const [marketData, setMarketData] = useState(null);  // Market data for analysis
-  const [survivalStatement, setSurvivalStatement] = useState('');  // Survival statement based on prediction
+  const [marketData, setMarketData] = useState(null);
+  const [survivalStatement, setSurvivalStatement] = useState('');
 
   useEffect(() => {
     const storedStartups = JSON.parse(localStorage.getItem('startups')) || [];
@@ -46,7 +48,7 @@ const StartupHome = () => {
     setIsButtonClicked(true);
     setLoading(true);  
     setError('');
-    setSurvivalStatement('');  // Clear previous survival statements
+    setSurvivalStatement('');
     try {
       const response = await axios.post('http://localhost:5000/predict', {
         'Area Name': startupInfo.location,
@@ -57,16 +59,14 @@ const StartupHome = () => {
       successRate = parseInt(successRate.replace('%', ''), 10);
       setPrediction(successRate);
 
-      // Generate a market survival statement based on the success rate
       const failureRate = 100 - successRate;
       setMarketData({
         successRate,
         failureRate,
-        competitorGrowth: Math.random() * 10 + 5,  // Random data for competitor growth
-        marketSize: Math.random() * 500 + 200,  // Random data for market size in billions
+        competitorGrowth: Math.random() * 10 + 5,
+        marketSize: Math.random() * 500 + 200,
       });
 
-      // Set the survival statement based on the success rate
       if (successRate >= 80) {
         setSurvivalStatement('Your startup has a high chance of success! With a predicted success rate above 80%, your business is poised for strong growth and market dominance.');
       } else if (successRate >= 50) {
@@ -83,6 +83,10 @@ const StartupHome = () => {
     }
   };
 
+  const navigateToChatbot = () => {
+    navigate('/chatbot');
+  };
+
   const features = [
     {
       title: 'View Predictions',
@@ -91,9 +95,15 @@ const StartupHome = () => {
       action: handleCheck,
       color: '#4F46E5',
     },
+    {
+      title: 'Get More Information',
+      icon: <FiMessageSquare size={24} />,
+      description: 'Chat with our AI assistant to get detailed information and guidance',
+      action: navigateToChatbot,
+      color: '#10B981',
+    }
   ];
 
-  // Pie Chart Data
   const pieChartData = {
     labels: ['Success Rate', 'Failure Rate'],
     datasets: [
@@ -150,9 +160,9 @@ const StartupHome = () => {
 
           <Row className="g-4">
             {features.map((feature, index) => (
-              <Col key={index} md={4}>
+              <Col key={index} md={6}>
                 <Card
-                  className="h-100 shadow-sm"
+                  className="h-100 shadow-sm feature-card"
                   style={{
                     background: 'rgba(255, 255, 255, 0.9)',
                     backdropFilter: 'blur(10px)',
@@ -173,14 +183,14 @@ const StartupHome = () => {
                     <Card.Text>{feature.description}</Card.Text>
                     <Button
                       variant="primary"
-                      className="mt-auto"
+                      className="mt-auto feature-button"
                       onClick={feature.action}
                       style={{
                         background: feature.color,
                         border: 'none',
                       }}
                     >
-                      View Details
+                      {feature.title === 'View Predictions' ? 'View Details' : 'Chat Now'}
                     </Button>
                   </Card.Body>
                 </Card>
@@ -212,86 +222,31 @@ const StartupHome = () => {
               transition={{ duration: 0.5 }}
               className="mt-4"
             >
-              <Card
-                className="shadow-sm"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  border: 'none',
-                  borderRadius: '15px',
-                }}
-              >
+              <Card className="shadow-sm">
                 <Card.Body>
-                  <h3 className="mb-4">Your Startup Predictions</h3>
+                  <h3 className="mb-4">Startup Analysis Results</h3>
                   <Row>
-                    <Col md={12} className="mb-3">
-                      <div className="prediction-item">
-                        <h5>Predicted Success Rate</h5>
-                        <p>{prediction}%</p>
-                        <div className="progress mb-2">
-                          <div
-                            className="progress-bar"
-                            role="progressbar"
-                            style={{
-                              width: `${prediction}%`,
-                              backgroundColor: '#4F46E5',
-                            }}
-                            aria-valuenow={prediction}
-                            aria-valuemin="0"
-                            aria-valuemax="100"
-                          >
-                            {prediction}% Confidence
-                          </div>
+                    <Col md={6}>
+                      <div className="text-center mb-4">
+                        <h4>Success Prediction</h4>
+                        <div style={{ width: '100%', maxWidth: '300px', margin: '0 auto' }}>
+                          <Pie data={pieChartData} />
                         </div>
                       </div>
                     </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-
-              {/* Market Analysis Card */}
-              <Card
-                className="shadow-sm mt-4"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  border: 'none',
-                  borderRadius: '15px',
-                }}
-              >
-                <Card.Body>
-                  <h3 className="mb-4">Market Analysis</h3>
-                  <Row>
                     <Col md={6}>
-                      <h5>Competitor Growth</h5>
-                      <p>{marketData?.competitorGrowth.toFixed(2)}%</p>
-                    </Col>
-                    <Col md={6}>
-                      <h5>Market Size (in Billion)</h5>
-                      <p>${marketData?.marketSize.toFixed(2)}B</p>
-                    </Col>
-                  </Row>
-
-                  <Row>
-                    <Col md={12}>
-                      <h5>Market Breakdown</h5>
-                      <div style={{ maxWidth: '300px', margin: '0 auto' }}>
-                        <Pie data={pieChartData} options={{ responsive: true, maintainAspectRatio: true }} />
-                      </div>
-                    </Col>
-                  </Row>
-
-                  {/* Survival Statement */}
-                  <Row>
-                    <Col md={12}>
-                      <div className="survival-statement-card p-4" style={{ 
-                        backgroundColor: '#f8f9fa', 
-                        border: '1px solid #ddd', 
-                        borderRadius: '10px',
-                        boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
-                      }}>
-                        <h5 className="font-weight-bold mb-3">Survival in the Market</h5>
-                        <p className="text-muted">{survivalStatement}</p>
+                      <div className="p-3 rounded bg-light">
+                        <h4>Analysis Summary</h4>
+                        <p>{survivalStatement}</p>
+                        {marketData && (
+                          <>
+                            <h5 className="mt-3">Market Insights:</h5>
+                            <ul>
+                              <li>Market Size: ${marketData.marketSize.toFixed(2)} Billion</li>
+                              <li>Competitor Growth: {marketData.competitorGrowth.toFixed(1)}% YoY</li>
+                            </ul>
+                          </>
+                        )}
                       </div>
                     </Col>
                   </Row>

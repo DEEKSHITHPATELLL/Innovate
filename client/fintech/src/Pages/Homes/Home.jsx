@@ -1,60 +1,58 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container, Row, Col, Modal } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { FiDollarSign, FiUsers, FiTarget } from 'react-icons/fi';
+import { FiDollarSign, FiUsers, FiTarget, FiTrendingUp, FiShield, FiGlobe } from 'react-icons/fi';
 import './Home.css';
 
 const Home = () => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { duration: 0.5, staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.5 }
-    },
-    hover: {
-      y: -10,
-      scale: 1.02,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut"
-      }
-    }
-  };
+  const [showPathModal, setShowPathModal] = useState(false);
 
   const userTypes = [
     {
       title: 'For Funders',
-      icon: <FiDollarSign size={32} />,
+      icon: <FiDollarSign size={40} />,
       description: 'Discover promising startups and make informed investment decisions.',
-      color: '#10B981',
-      gradient: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
+      color: '#0061ff',
+      gradient: 'linear-gradient(135deg, #0061ff 0%, #60efff 100%)',
       link: '/login'
     },
     {
       title: 'For Startups',
-      icon: <FiTarget size={32} />,
+      icon: <FiTarget size={40} />,
       description: 'Launch and scale your startup with access to funding and resources.',
-      color: '#047857',
-      gradient: 'linear-gradient(135deg, #047857 0%, #065F46 100%)',
+      color: '#0061ff',
+      gradient: 'linear-gradient(135deg, #0061ff 0%, #60efff 100%)',
       link: '/startuplogin'
     },
     {
       title: 'For Insighters',
-      icon: <FiUsers size={32} />,
+      icon: <FiUsers size={40} />,
       description: 'Join our community to share insights and explore innovative ideas.',
-      color: '#059669',
-      gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+      color: '#0061ff',
+      gradient: 'linear-gradient(135deg, #0061ff 0%, #60efff 100%)',
       link: '/peoplelogin'
+    }
+  ];
+
+  const features = [
+    {
+      icon: <FiTrendingUp size={32} />,
+      title: 'Data-Driven Insights',
+      description: 'Make informed decisions with our advanced analytics and market trends.',
+      color: '#0061ff'
+    },
+    {
+      icon: <FiShield size={32} />,
+      title: 'Secure Platform',
+      description: 'Your data and investments are protected with enterprise-grade security.',
+      color: '#0061ff'
+    },
+    {
+      icon: <FiGlobe size={32} />,
+      title: 'Global Network',
+      description: 'Connect with entrepreneurs and investors from around the world.',
+      color: '#0061ff'
     }
   ];
 
@@ -62,86 +60,55 @@ const Home = () => {
     <div className="home-wrapper">
       {/* Hero Section */}
       <section className="hero-section">
+        <div className="hero-bg"></div>
         <Container>
-          <Row className="align-items-center min-vh-75">
-            <Col lg={8} className="mx-auto text-center">
-              <motion.h1 
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible" 
-                className="hero-title"
+          <Row className="align-items-center min-vh-100">
+            <Col lg={7} className="hero-content">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
               >
-                Welcome to FinTech Hub
-              </motion.h1>
-              <motion.p 
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                className="hero-subtitle"
-              >
-                Connecting innovative startups with visionary investors. Build, fund, and grow your dreams with our comprehensive ecosystem.
-              </motion.p>
+                <h1 className="hero-title">
+                  Welcome to <span className="gradient-text">Innovate</span>
+                </h1>
+                <p className="hero-subtitle">
+                  Empowering the next generation of entrepreneurs. Build, fund, and grow your dreams with our comprehensive ecosystem.
+                </p>
+                <div className="hero-buttons">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <button onClick={() => setShowPathModal(true)} className="primary-button">
+                      Get Started
+                    </button>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Link to="/about" className="secondary-button">
+                      Learn More
+                    </Link>
+                  </motion.div>
+                </div>
+              </motion.div>
             </Col>
-          </Row>
-        </Container>
-      </section>
-
-      {/* User Types Section */}
-      <section className="user-types-section py-5">
-        <Container>
-          <Row className="justify-content-center">
-            <Col lg={8} className="text-center mb-5">
-              <motion.h2 
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                className="section-title"
+            <Col lg={5} className="d-none d-lg-block">
+              <motion.div
+                className="hero-image-container"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8 }}
               >
-                Choose Your Path
-              </motion.h2>
-              <motion.p 
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                className="section-subtitle"
-              >
-                Select the role that best fits your journey
-              </motion.p>
+                <div className="hero-image">
+                  <div className="namaste-image"></div>
+                  <div className="image-overlay"></div>
+                  <div className="hero-text">Empowering Innovators 🚀</div>
+                </div>
+              </motion.div>
             </Col>
-          </Row>
-          <Row className="g-4">
-            {userTypes.map((type, index) => (
-              <Col key={index} lg={4} md={6} className="mb-4">
-                <motion.div
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  whileHover="hover"
-                >
-                  <Link to={type.link} className="text-decoration-none">
-                    <Card className="h-100 border-0 shadow-lg">
-                      <div style={{ height: '8px', background: type.gradient }} />
-                      <Card.Body className="p-4">
-                        <div 
-                          className="icon-wrapper mb-4 d-inline-flex align-items-center justify-content-center rounded-circle"
-                          style={{
-                            width: '80px',
-                            height: '80px',
-                            background: `${type.color}15`,
-                            color: type.color
-                          }}
-                        >
-                          {type.icon}
-                        </div>
-                        <h3 className="card-title">{type.title}</h3>
-                        <p className="card-description">{type.description}</p>
-                        <div className="card-action">Get Started →</div>
-                      </Card.Body>
-                    </Card>
-                  </Link>
-                </motion.div>
-              </Col>
-            ))}
           </Row>
         </Container>
       </section>
@@ -149,69 +116,76 @@ const Home = () => {
       {/* Features Section */}
       <section className="features-section">
         <Container>
-          <Row className="justify-content-center">
-            <Col lg={8} className="text-center mb-5">
-              <motion.h2 
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                className="section-title"
+          <Row className="justify-content-center text-center mb-5">
+            <Col lg={8}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
               >
-                Why Choose Us
-              </motion.h2>
-              <motion.p 
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                className="section-subtitle"
-              >
-                Experience the power of our comprehensive platform
-              </motion.p>
+                <h2 className="section-title">Why Choose Innovate</h2>
+                <p className="section-subtitle">
+                  Experience the future of startup ecosystem with our comprehensive platform
+                </p>
+              </motion.div>
             </Col>
           </Row>
-          <Row className="g-4">
-            {[
-              {
-                icon: <FiDollarSign size={32} />,
-                title: 'Smart Investment',
-                description: 'Make data-driven investment decisions with our advanced analytics',
-                color: '#10B981'
-              },
-              {
-                icon: <FiTarget size={32} />,
-                title: 'Growth Support',
-                description: 'Access resources and mentorship to scale your startup effectively',
-                color: '#047857'
-              },
-              {
-                icon: <FiUsers size={32} />,
-                title: 'Community',
-                description: 'Connect with a network of entrepreneurs, investors, and experts',
-                color: '#059669'
-              }
-            ].map((feature, index) => (
+          <Row>
+            {features.map((feature, index) => (
               <Col key={index} md={4}>
-                <motion.div 
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  whileHover="hover"
-                  className="text-center p-4"
+                <motion.div
+                  className="feature-box"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.2 }}
                 >
-                  <div 
-                    className="feature-icon mb-4 mx-auto d-flex align-items-center justify-content-center"
-                    style={{ color: feature.color }}
-                  >
+                  <div className="feature-icon" style={{ color: feature.color }}>
                     {feature.icon}
                   </div>
-                  <h3 className="h4 mb-3">{feature.title}</h3>
-                  <p className="text-muted">{feature.description}</p>
+                  <h3>{feature.title}</h3>
+                  <p>{feature.description}</p>
                 </motion.div>
               </Col>
             ))}
           </Row>
         </Container>
       </section>
+
+      {/* Path Selection Modal */}
+      <Modal
+        show={showPathModal}
+        onHide={() => setShowPathModal(false)}
+        centered
+        size="lg"
+        className="path-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Choose Your Path</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Row>
+            {userTypes.map((type, index) => (
+              <Col key={index} md={4}>
+                <Link to={type.link} className="path-card-link">
+                  <motion.div
+                    className="path-card"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <div className="path-icon" style={{ color: type.color }}>
+                      {type.icon}
+                    </div>
+                    <h3>{type.title}</h3>
+                    <p>{type.description}</p>
+                  </motion.div>
+                </Link>
+              </Col>
+            ))}
+          </Row>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

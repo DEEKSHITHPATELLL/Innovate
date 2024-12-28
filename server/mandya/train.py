@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import mean_absolute_error, r2_score
 
 # Step 1: Load the dataset
-file_path = "data/cleaned_sorted_villages_near_mandya_data.csv"
+file_path = "data/villages_near_mandya_data.csv"
 data_clean = pd.read_csv(file_path)
 
 # Step 2: Encode categorical data and prepare the dataset
