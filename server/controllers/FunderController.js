@@ -13,10 +13,6 @@ const registerFunder = async (req, res) => {
       return res.status(400).json({ error: 'Name, email, and password are required' });
     }
 
-    // Check if file is uploaded
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
 
     // Check if the user already exists
     const existingUser = await Funder.findOne({ email });
@@ -32,7 +28,6 @@ const registerFunder = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      uploadedFile: req.file.path, // Save the uploaded file path
     });
 
     await newFunder.save();

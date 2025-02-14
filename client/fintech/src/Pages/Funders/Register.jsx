@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
+import axios from 'axios';
 import './Register.css';
 
 const Register = () => {
@@ -11,13 +12,41 @@ const Register = () => {
     confirmPassword: ''
   });
 
+  // Add missing state variables
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [userExists, setUserExists] = useState(false);
+
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/funder/register', formData, {
+        withCredentials: true,
+      });
+
+      setSuccess(response.data.message);
+      setError('');
+      setUserExists(false);
+
+      setTimeout(() => {
+        navigate('/funders');
+      }, 2000);
+    } catch (error) {
+      console.error('Registration error:', error);
+      setError(error.response?.data?.error || 'An error occurred');
+      setSuccess('');
+
+      if (error.response?.data?.error === 'User already exists') {
+        setUserExists(true);
+      }
+    }
   };
 
   return (
@@ -40,6 +69,11 @@ const Register = () => {
                 <h2>Create Account</h2>
                 <p>Fill in your details to get started</p>
               </div>
+
+              {error && <Alert variant="danger">{error}</Alert>}
+              {success && <Alert variant="success">{success}</Alert>}
+              {userExists && <Alert variant="warning">User already exists. Please try a different email.</Alert>}
+
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-4">
                   <Form.Label>Full Name</Form.Label>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './PeopleLogin.css';  // Import the CSS file
+import './PeopleLogin.css'; 
 
 const PeopleLogin = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +24,7 @@ const PeopleLogin = () => {
     try {
       // Send only email and password to the backend for login
       const response = await axios.post('http://localhost:8000/api/people/login', formData, {
-        withCredentials: true, // Send cookies with the request
+        withCredentials: true, 
       });
 
       setSuccess(response.data.message);  // Set success message

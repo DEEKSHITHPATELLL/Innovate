@@ -7,13 +7,10 @@ import { FiBarChart2, FiMessageSquare } from 'react-icons/fi';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale } from 'chart.js';
 import './StartupHome.css';
-
-// Register chart.js components
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale);
 
 const StartupHome = () => {
   const navigate = useNavigate();
-  // State variables
   const [startupInfo, setStartupInfo] = useState({
     location: '',
     domain: '',

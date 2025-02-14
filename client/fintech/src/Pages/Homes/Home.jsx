@@ -23,7 +23,7 @@ const Home = () => {
       description: 'Launch and scale your startup with access to funding and resources.',
       color: '#0061ff',
       gradient: 'linear-gradient(135deg, #0061ff 0%, #60efff 100%)',
-      link: '/startuplogin'
+      link: '/startupregister'
     },
     {
       title: 'For Insighters',

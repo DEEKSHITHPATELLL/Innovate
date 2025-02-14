@@ -15,10 +15,6 @@ const FunderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  uploadedFile: {
-    type: String,
-    required: true,
-  },
 }, { timestamps: true });
 
 // Create model using the funderDB connection

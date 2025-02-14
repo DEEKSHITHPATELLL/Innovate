@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; 
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import axios from 'axios';
 import './Login.css';
 
 const Login = () => {
@@ -8,14 +9,34 @@ const Login = () => {
     email: '',
     password: ''
   });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [userExists, setUserExists] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  const handleSubmit = (e) => {
+   
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/funder/login', formData, {
+        withCredentials: true, 
+      });
+
+      setSuccess(response.data.message);  
+      setError('');  
+      setTimeout(() => {
+        navigate('/funders');
+      }, 2000);
+    } catch (error) {
+      console.error('Login error:', error); 
+      setError(error.response?.data?.error || 'An error occurred'); 
+      setSuccess('');
+    }
   };
 
   return (
