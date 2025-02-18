@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './Register.css';
 
 const Register = () => {
@@ -12,10 +13,10 @@ const Register = () => {
     confirmPassword: ''
   });
 
-  // Add missing state variables
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [userExists, setUserExists] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -25,6 +26,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const response = await axios.post('http://localhost:8000/api/funder/register', formData, {
@@ -46,17 +48,19 @@ const Register = () => {
       if (error.response?.data?.error === 'User already exists') {
         setUserExists(true);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="startup-register">
       <Container fluid>
-        <Row>
-          <Col md={6} className="left-panel">
+        <Row className="min-vh-100">
+          <Col md={6} className="left-panel d-flex flex-column justify-content-between">
             <div className="brand-section">
-              <h1>Innovate</h1>
-              <p>Empowering Financial Innovation</p>
+              <h1 className="display-3 mb-4">Innovate</h1>
+              <p className="lead">Empowering Financial Innovation</p>
             </div>
             <div className="info-section">
               <h2>Join Our Platform</h2>
@@ -70,11 +74,15 @@ const Register = () => {
                 <p>Fill in your details to get started</p>
               </div>
 
-              {error && <Alert variant="danger">{error}</Alert>}
-              {success && <Alert variant="success">{success}</Alert>}
-              {userExists && <Alert variant="warning">User already exists. Please try a different email.</Alert>}
+              {error && <Alert variant="danger" className="animate__animated animate__fadeIn">{error}</Alert>}
+              {success && <Alert variant="success" className="animate__animated animate__fadeIn">{success}</Alert>}
+              {userExists && (
+                <Alert variant="warning" className="animate__animated animate__fadeIn">
+                  User already exists. Please try a different email.
+                </Alert>
+              )}
 
-              <Form onSubmit={handleSubmit}>
+              <Form onSubmit={handleSubmit} className="register-form">
                 <Form.Group className="mb-4">
                   <Form.Label>Full Name</Form.Label>
                   <Form.Control
@@ -84,6 +92,7 @@ const Register = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
+                    className="form-control-lg"
                   />
                 </Form.Group>
 
@@ -96,6 +105,7 @@ const Register = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    className="form-control-lg"
                   />
                 </Form.Group>
 
@@ -108,6 +118,7 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
+                    className="form-control-lg"
                   />
                 </Form.Group>
 
@@ -120,6 +131,7 @@ const Register = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required
+                    className="form-control-lg"
                   />
                 </Form.Group>
 
@@ -128,14 +140,19 @@ const Register = () => {
                     type="checkbox"
                     label="I agree to the Terms of Service and Privacy Policy"
                     required
+                    className="custom-checkbox"
                   />
                 </Form.Group>
 
-                <Button type="submit" className="register-btn">
-                  Create Account
+                <Button 
+                  type="submit" 
+                  className="register-btn w-100" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
                 </Button>
 
-                <div className="login-prompt">
+                <div className="login-prompt mt-4">
                   Already have an account?{' '}
                   <Link to="/login" className="login-link">
                     Sign in

@@ -1,42 +1,69 @@
 .startup-register {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, #f0f2f5 0%, #e2e8f0 100%);
 }
 
 .left-panel {
-  background: linear-gradient(135deg, #0061ff 0%, #60efff 100%);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 2rem;
+  background: linear-gradient(45deg, #2563eb 0%, #3b82f6 100%);
   color: white;
+  padding: 4rem 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+}
+
+.left-panel::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .brand-section {
-  margin-bottom: 4rem;
+  position: relative;
+  z-index: 1;
 }
 
 .brand-section h1 {
   font-size: 3.5rem;
-  font-weight: bold;
+  font-weight: 800;
   margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: -1px;
 }
 
 .brand-section p {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   opacity: 0.9;
+  font-weight: 300;
+}
+
+.info-section {
+  position: relative;
+  z-index: 1;
+  margin-top: 4rem;
 }
 
 .info-section h2 {
   font-size: 2.5rem;
-  font-weight: bold;
+  font-weight: 700;
   margin-bottom: 1rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .info-section p {
   font-size: 1.1rem;
   opacity: 0.9;
+  line-height: 1.6;
 }
 
 .right-panel {
@@ -44,12 +71,23 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  background: white;
 }
 
 .register-form-container {
   width: 100%;
-  max-width: 450px;
-  padding: 2rem;
+  max-width: 500px;
+  padding: 2.5rem;
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+.register-form-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
 
 .register-header {
@@ -58,81 +96,226 @@
 }
 
 .register-header h2 {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #2d3748;
-  margin-bottom: 0.5rem;
+  color: #1e40af;
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
 }
 
 .register-header p {
-  color: #718096;
+  color: #64748b;
+  font-size: 1.1rem;
 }
 
-.form-group label {
+.form-label {
   font-weight: 500;
-  color: #4a5568;
+  color: #334155;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
 }
 
 .form-control {
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  padding: 0.875rem 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #f8fafc;
 }
 
 .form-control:focus {
-  border-color: #0061ff;
-  box-shadow: 0 0 0 3px rgba(0, 97, 255, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  background-color: white;
 }
 
-.form-check-label {
-  color: #4a5568;
-  font-size: 0.9rem;
+.form-control::placeholder {
+  color: #94a3b8;
+}
+
+.form-control-lg {
+  height: auto;
+  padding: 1rem 1.25rem;
+}
+
+.custom-checkbox .form-check-input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.custom-checkbox .form-check-input:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.custom-checkbox .form-check-label {
+  color: #64748b;
+  font-size: 0.95rem;
+  padding-left: 0.5rem;
+  cursor: pointer;
 }
 
 .register-btn {
-  width: 100%;
-  padding: 0.75rem;
-  background: #0061ff;
+  padding: 1rem 2rem;
+  background: linear-gradient(45deg, #2563eb 0%, #3b82f6 100%);
   border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
-  transition: background-color 0.2s;
+  border-radius: 0.75rem;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .register-btn:hover {
-  background: #0052d6;
+  background: linear-gradient(45deg, #1d4ed8 0%, #2563eb 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+.register-btn:hover::after {
+  opacity: 1;
+}
+
+.register-btn:active {
+  transform: translateY(0);
+}
+
+.register-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .login-prompt {
   text-align: center;
-  color: #4a5568;
+  color: #64748b;
+  font-size: 1rem;
 }
 
 .login-link {
-  color: #0061ff;
-  text-decoration: none;
+  color: #2563eb;
   font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-bottom: 1px dashed transparent;
 }
 
 .login-link:hover {
-  text-decoration: underline;
+  color: #1d4ed8;
+  border-bottom-color: #1d4ed8;
 }
 
+.alert {
+  border: none;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+      opacity: 0;
+      transform: translateY(-10px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+.alert-danger {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.alert-success {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.alert-warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .left-panel {
-    min-height: 300px;
+      padding: 2rem;
+      min-height: auto;
   }
-  
-  .brand-section {
-    margin-bottom: 2rem;
-  }
-  
+
   .brand-section h1 {
-    font-size: 2.5rem;
+      font-size: 2.5rem;
   }
-  
+
+  .info-section {
+      margin-top: 2rem;
+  }
+
   .info-section h2 {
-    font-size: 2rem;
+      font-size: 2rem;
   }
+
+  .register-form-container {
+      padding: 1.5rem;
+      margin: 1rem;
+  }
+
+  .register-header h2 {
+      font-size: 2rem;
+  }
+}
+
+/* Form Group Animation */
+.form-group {
+  transition: transform 0.3s ease;
+}
+
+.form-group:focus-within {
+  transform: translateX(5px);
+}
+
+/* Loading State */
+.register-btn.loading {
+  position: relative;
+  color: transparent;
+}
+
+.register-btn.loading::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

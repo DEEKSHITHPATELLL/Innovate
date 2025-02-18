@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container, Form, Button, Card } from 'react-bootstrap';
-import { FaPaperPlane, FaRobot, FaUser, FaFileUpload } from 'react-icons/fa';
+import { FaPaperPlane, FaRobot, FaUser, FaFileUpload,FaMicrophone, FaStop  } from 'react-icons/fa';
 import "./Chatbot.css";
 
 function Chatbot() {
@@ -11,7 +11,10 @@ function Chatbot() {
   const [file, setFile] = useState(null);
   const [waitingForFile, setWaitingForFile] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
   const sessionId = "user-123";
 
   const scrollToBottom = () => {
@@ -93,6 +96,95 @@ function Chatbot() {
       sendMessage();
     }
   };
+  const sendVoiceMessage = async (audioBlob) => {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'voice-message.webm');
+
+    setIsTyping(true);
+    try {
+      const response = await axios.post('http://localhost:5000/voice-chat', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { sender: 'user', text: `🎤 ${response.data.original_text}` },
+        { sender: 'bot', text: response.data.reply }
+      ]);
+    } catch (error) {
+      console.error('Error sending voice message:', error);
+      let errorMessage = 'Sorry, I had trouble processing your voice message. Please try again or type your message.';
+      
+      // Check for specific error messages from the backend
+      if (error.response?.data?.error) {
+        if (error.response.data.error.includes('FFmpeg is not installed')) {
+          errorMessage = 'Voice chat is currently unavailable. Please type your message instead.';
+        } else if (error.response.data.error.includes('Could not understand the audio')) {
+          errorMessage = 'I could not understand the audio. Please speak clearly and try again.';
+        }
+      }
+      
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { sender: 'bot', text: errorMessage }
+      ]);
+    }
+    setIsTyping(false);
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
+      chunksRef.current = [];
+
+      mediaRecorderRef.current.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorderRef.current.onstop = async () => {
+        if (chunksRef.current.length === 0) {
+          setMessages(prevMessages => [
+            ...prevMessages,
+            { sender: 'bot', text: 'No audio was recorded. Please try again.' }
+          ]);
+          return;
+        }
+
+        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        await sendVoiceMessage(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorderRef.current.onerror = (event) => {
+        console.error('MediaRecorder error:', event.error);
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { sender: 'bot', text: 'There was an error recording audio. Please try again or type your message.' }
+        ]);
+      };
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { sender: 'bot', text: 'Could not access the microphone. Please ensure you have granted microphone permissions and try again.' }
+      ]);
+    }
+    setIsTyping(false);
+  };
+  const stopRecording = () => {
+    mediaRecorderRef.current.stop();
+    setIsRecording(false);
+  };
 
   return (
     <Container className="chatbot-container">
@@ -163,29 +255,36 @@ function Chatbot() {
             </div>
           ) : (
             <div className="input-container">
-              <Form.Control
-                as="textarea"
-                rows={1}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                className="message-input"
-              />
-              <Button
-                variant="primary"
-                onClick={sendMessage}
-                disabled={!input.trim()}
-                className="send-button"
-              >
-                <FaPaperPlane />
-              </Button>
-            </div>
-          )}
-        </Card.Footer>
-      </Card>
-    </Container>
-  );
-}
+            <Form.Control
+              as="textarea"
+              rows={1}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              className="message-input"
+            />
+            <Button
+              variant={isRecording ? "danger" : "secondary"}
+              onClick={isRecording ? stopRecording : startRecording}
+              className="voice-button mx-2"
+            >
+              {isRecording ? <FaStop /> : <FaMicrophone />}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={sendMessage}
+              disabled={!input.trim()}
+              className="send-button"
+            >
+              <FaPaperPlane />
+            </Button>
+          </div>
+        )}
+      </Card.Footer>
+    </Card>
+  </Container>
+);
+};
 
 export default Chatbot;

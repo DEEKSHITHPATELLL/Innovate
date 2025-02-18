@@ -14,6 +14,14 @@ import PyPDF2
 import pdfplumber
 import pandas as pd
 from flask import jsonify
+import speech_recognition as sr
+from pydub import AudioSegment
+import subprocess
+import shutil
+import io
+import tempfile
+import subprocess
+
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -127,6 +135,15 @@ def predict():
         return jsonify({"error": f"An error occurred during prediction: {str(e)}"}), 500
 
 # Chat functionality route
+def is_related_to_entrepreneurship(question):
+    keywords = [
+        "startup", "business", "entrepreneur", "funding", "marketing", 
+        "investment", "revenue", "scaling", "strategy", "founder", 
+        "venture capital", "growth", "finance", "customers", "sales",
+        "company", "market", "profit", "innovation", "product"
+    ]
+    return any(keyword in question.lower() for keyword in keywords)
+
 @app.route("/chat", methods=["POST"])
 def chat_with_bot():
     try:
@@ -136,15 +153,38 @@ def chat_with_bot():
         if not question:
             return jsonify({"error": "No question provided"}), 400
 
-        # Sending the question to Gemini model
-        response = chat.send_message(question, stream=True)
-        response_text = "".join([chunk.text for chunk in response])
+        # Check if question is related to entrepreneurship
+        if not is_related_to_entrepreneurship(question):
+            return jsonify({
+                "reply": "I can only answer questions related to entrepreneurship, startups, and business. Please rephrase your question to focus on these topics."
+            })
+
+        # Create entrepreneurship-specific prompt
+        entrepreneurship_prompt = f"""
+        You are an expert AI assistant specializing in entrepreneurship and startups.
+        Focus on providing practical, actionable advice related to:
+        - Starting and growing businesses
+        - Business strategy and planning
+        - Funding and investment
+        - Marketing and sales
+        - Market analysis
+        - Business operations
         
-        return jsonify({"reply": response_text})
+        Question: {question}
+        
+        Provide a clear, concise, and practical answer focused on entrepreneurship.
+        """
+        
+        # Create a new chat for each question to avoid context confusion
+        chat = model_chat.start_chat(history=[])
+        response = chat.send_message(entrepreneurship_prompt)
+        
+        return jsonify({"reply": response.text})
         
     except Exception as e:
         logging.error(f"Error in chat: {str(e)}")
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
 @app.route("/upload", methods=["POST"])
 def upload_file():
     if 'file' not in request.files:
@@ -169,8 +209,103 @@ def upload_file():
         return jsonify({"response": response_text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+recognizer = sr.Recognizer()
 
-# Home route to test the Flask server
+def is_ffmpeg_installed():
+    return shutil.which('ffmpeg') is not None
+
+@app.route("/voice-chat", methods=["POST"])
+def voice_chat():
+    try:
+        if not is_ffmpeg_installed():
+            logging.error("FFmpeg is not installed on the system")
+            return jsonify({
+                "error": "Server configuration error: FFmpeg is not installed. Please install FFmpeg to use voice chat."
+            }), 500
+
+        if 'audio' not in request.files:
+            return jsonify({"error": "No audio file provided"}), 400
+        
+        audio_file = request.files['audio']
+        
+        # Create temporary files for audio processing
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as webm_audio:
+            audio_file.save(webm_audio.name)
+            
+            # Convert WebM to WAV using ffmpeg
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as wav_audio:
+                try:
+                    result = subprocess.run([
+                        'ffmpeg', '-i', webm_audio.name,
+                        '-acodec', 'pcm_s16le',
+                        '-ar', '16000',
+                        '-ac', '1',
+                        '-y', wav_audio.name
+                    ], capture_output=True, text=True)
+                    
+                    if result.returncode != 0:
+                        logging.error(f"FFmpeg conversion failed: {result.stderr}")
+                        return jsonify({
+                            "error": "Failed to process audio file. Please try again."
+                        }), 500
+
+                    # Convert audio to text
+                    try:
+                        with sr.AudioFile(wav_audio.name) as source:
+                            audio_data = recognizer.record(source)
+                            text = recognizer.recognize_google(audio_data)
+                            
+                            if not is_related_to_entrepreneurship(text):
+                                return jsonify({
+                                    "original_text": text,
+                                    "reply": "I can only answer questions related to entrepreneurship, startups, and business. Please rephrase your question to focus on these topics."
+                                })
+
+                            entrepreneurship_prompt = f"""
+                            You are an expert AI assistant specializing in entrepreneurship and startups.
+                            Focus on providing practical, actionable advice related to:
+                            - Starting and growing businesses
+                            - Business strategy and planning
+                            - Funding and investment
+                            - Marketing and sales
+                            - Market analysis
+                            - Business operations
+                            
+                            Question: {text}
+                            
+                            Provide a clear, concise, and practical answer focused on entrepreneurship.
+                            """
+                            
+                            chat = model_chat.start_chat(history=[])
+                            response = chat.send_message(entrepreneurship_prompt)
+                            
+                            return jsonify({
+                                "original_text": text,
+                                "reply": response.text
+                            })
+                            
+                    except sr.UnknownValueError:
+                        return jsonify({"error": "Could not understand the audio. Please speak clearly and try again."}), 400
+                    except sr.RequestError as e:
+                        return jsonify({"error": f"Error with the speech recognition service: {str(e)}"}), 500
+                except subprocess.SubprocessError as e:
+                    logging.error(f"FFmpeg subprocess error: {str(e)}")
+                    return jsonify({
+                        "error": "Failed to process audio file. Please try again."
+                    }), 500
+                
+    except Exception as e:
+        logging.error(f"Error in voice chat: {str(e)}")
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+    finally:
+        # Clean up temporary files
+        try:
+            if 'webm_audio' in locals():
+                os.unlink(webm_audio.name)
+            if 'wav_audio' in locals():
+                os.unlink(wav_audio.name)
+        except Exception as e:
+            logging.error(f"Error cleaning up temporary files: {str(e)}")
 @app.route('/')
 def home():
     return "Flask server is running. Use the /predict endpoint to make predictions or /chat for chatting."

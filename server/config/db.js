@@ -1,29 +1,31 @@
 const mongoose = require('mongoose');
-
-// Create separate connections for each database
-const funderDB = mongoose.createConnection('mongodb://localhost:27017/funderDB', {
+const dotenv = require('dotenv');
+dotenv.config();
+if (!process.env.MONGODB_FUNDERS || !process.env.MONGODB_PEOPLE || !process.env.MONGODB_STARTUP) {
+  console.error("Error: Missing MongoDB environment variables!");
+  process.exit(1);
+}
+const funderDB = mongoose.createConnection(process.env.MONGODB_FUNDERS, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-const peopleDB = mongoose.createConnection('mongodb://localhost:27017/peopleDB', {
+const peopleDB = mongoose.createConnection(process.env.MONGODB_PEOPLE, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-const startupDB = mongoose.createConnection('mongodb://localhost:27017/startupDB', {
+const startupDB = mongoose.createConnection(process.env.MONGODB_STARTUP, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+funderDB.on('open', () => console.log('Connected to funderDB'));
+funderDB.on('error', (err) => console.error(' Error connecting to funderDB:', err));
 
-// Log connection status
-funderDB.once('open', () => console.log('Connected to funderDB'));
-peopleDB.once('open', () => console.log('Connected to peopleDB'));
-startupDB.once('open', () => console.log('Connected to startupDB'));
+peopleDB.on('open', () => console.log(' Connected to peopleDB'));
+peopleDB.on('error', (err) => console.error(' Error connecting to peopleDB:', err));
 
-// Export connection instances
-module.exports = {
-  funderDB,
-  peopleDB,
-  startupDB,
-};
+startupDB.on('open', () => console.log('Connected to startupDB'));
+startupDB.on('error', (err) => console.error(' Error connecting to startupDB:', err));
+
+module.exports = { funderDB, peopleDB, startupDB };
