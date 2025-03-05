@@ -49,6 +49,7 @@ const StartupRegister = () => {
     location: '',
     domain: '',
     uploadedFile: null,
+    fileName: ''
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -58,7 +59,6 @@ const StartupRegister = () => {
   const [success, setSuccess] = useState('');
   const [userExists, setUserExists] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [fileName, setFileName] = useState('');
   const navigate = useNavigate();
 
   const calculatePasswordStrength = (password) => {
@@ -79,8 +79,20 @@ const StartupRegister = () => {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'uploadedFile' && files.length > 0) {
-      setFormData({ ...formData, [name]: files[0] });
-      setFileName(files[0].name);
+      const file = files[0];
+      
+      // Check file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
+        e.target.value = ''; // Clear the file input
+        return;
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        [name]: file,
+        fileName: file.name
+      }));
     } else {
       setFormData({ ...formData, [name]: value });
       if (name === 'password') {
@@ -117,6 +129,9 @@ const StartupRegister = () => {
     try {
       const response = await axios.post('http://localhost:8000/api/startup/register', data, {
         withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
       setSuccess('Registration successful! Redirecting...');
@@ -126,8 +141,13 @@ const StartupRegister = () => {
       const registeredStartups = JSON.parse(localStorage.getItem('startups')) || [];
       registeredStartups.push({
         id: response.data.id,
-        ...formData,
-        uploadedFile: response.data.uploadedFileUrl,
+        name: formData.name,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        location: formData.location,
+        domain: formData.domain,
+        uploadedFile: `http://localhost:8000${response.data.fileUrl}`, // Store complete URL
+        fileName: response.data.fileName
       });
       localStorage.setItem('startups', JSON.stringify(registeredStartups));
 
@@ -381,7 +401,7 @@ const StartupRegister = () => {
                     whileTap={{ scale: 0.98 }}
                   >
                     <FiUpload />
-                    {fileName || 'Upload Business Plan'}
+                    {formData.fileName || 'Upload Business Plan'}
                   </motion.button>
                 </div>
 

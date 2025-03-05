@@ -1,17 +1,20 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, Dropdown, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Dropdown, Badge, Modal, Form } from 'react-bootstrap';
 import { FiFilter, FiDownload, FiTrendingUp, FiUsers, FiDollarSign, FiMoon, FiSun, FiPhone, FiMail, FiMessageSquare } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
 import './FundersHome.css';
+
 const businessDomains = [
   "Gym",
   "Pharmacy",
   "Electronics Shop",
   "Restaurant",
-  "Grocery Store"
+  "Grocery Store",
+  "Coffee Shop"
 ];
+
 const FundersHome = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
@@ -25,6 +28,9 @@ const FundersHome = () => {
 
   const [selectedDomainFilter, setSelectedDomainFilter] = useState(null);
   const [hoveredDomain, setHoveredDomain] = useState(null);
+  const [showFundingModal, setShowFundingModal] = useState(false);
+  const [selectedStartup, setSelectedStartup] = useState(null);
+  const [fundingAmount, setFundingAmount] = useState('');
 
   useEffect(() => {
     document.body.classList.toggle('dark-mode', isDarkMode);
@@ -59,6 +65,73 @@ const FundersHome = () => {
 
   const uniqueDomains = useMemo(() => businessDomains, []);
 
+  const handleFund = (startup) => {
+    setSelectedStartup(startup);
+    setShowFundingModal(true);
+  };
+
+  const handleFundingSubmit = () => {
+    if (!fundingAmount || isNaN(fundingAmount) || parseFloat(fundingAmount) <= 0) {
+      alert('Please enter a valid funding amount');
+      return;
+    }
+
+    const updatedStartups = startups.map(startup => {
+      if (startup.name === selectedStartup.name) {  
+        const currentFunding = parseFloat(startup.funding || 0);
+        return {
+          ...startup,
+          funding: (currentFunding + parseFloat(fundingAmount)).toString()
+        };
+      }
+      return startup;
+    });
+
+    setStartups(updatedStartups);
+    localStorage.setItem('startups', JSON.stringify(updatedStartups));
+    setShowFundingModal(false);
+    setFundingAmount('');
+    setSelectedStartup(null);
+  };
+
+  const downloadStartupPDF = async (startup) => {
+    try {
+      // Get startups from localStorage to ensure we have the latest data
+      const startups = JSON.parse(localStorage.getItem('startups')) || [];
+      const startupData = startups.find(s => s.name === startup.name);
+      
+      if (startupData && startupData.uploadedFile) {
+        try {
+          // Fetch the file
+          const response = await fetch(startupData.uploadedFile);
+          const blob = await response.blob();
+          
+          // Create a download link
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = startupData.fileName || `${startup.name}_business_plan.pdf`;
+          
+          // Trigger download
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Cleanup
+          window.URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error('Error downloading file:', error);
+          alert('Error downloading the file. Please try again.');
+        }
+      } else {
+        alert('No business plan file available for this startup. Please make sure a file was uploaded during registration.');
+      }
+    } catch (error) {
+      console.error('Error accessing startup data:', error);
+      alert('Could not access startup data. Please try again.');
+    }
+  };
+
   const generatePDF = (data, type = 'domain') => {
     const doc = new jsPDF();
     if (type === 'domain') {
@@ -80,6 +153,13 @@ const FundersHome = () => {
       doc.setFontSize(14);
       doc.text(`Funding: $${parseFloat(data.funding || 0).toLocaleString()}`, 10, 30);
       doc.text(`Domain: ${data.domain || 'Uncategorized'}`, 10, 40);
+      
+      if (data.businessPlanPdf) {
+        doc.text('Business Plan is available - Click "View Business Plan" button to download', 10, 60);
+      } else {
+        doc.text('No Business Plan PDF available', 10, 60);
+      }
+      
       doc.save(`${data.name}_profile.pdf`);
     }
   };
@@ -95,78 +175,47 @@ const FundersHome = () => {
         >
           {isDarkMode ? <FiSun size={24} /> : <FiMoon size={24} />}
         </motion.div>
-
+  
         {/* Stats Overview with Enhanced Animations */}
         <Row className="mb-4">
-          <Col md={4}>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="h-100">
-              <Card className={`stat-card h-100 ${isDarkMode ? "dark" : ""}`}>
-                <Card.Body>
-                  <motion.div
-                    className="d-flex align-items-center"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="stat-icon">
-                      <FiUsers size={24} />
-                    </div>
-                    <div className="ms-3">
-                      <h6 className="mb-0">Total Startups</h6>
-                      <motion.h3
-                        className="mb-0"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        {startups.length}
-                      </motion.h3>
-                    </div>
-                  </motion.div>
-                </Card.Body>
-              </Card>
-            </motion.div>
-          </Col>
-
-          <Col md={4}>
-            <motion.div whileHover={{ scale: 1.02 }} className="h-100">
-              <Card className="stat-card h-100">
-                <Card.Body>
-                  <div className="d-flex align-items-center">
-                    <div className="stat-icon">
-                      <FiTrendingUp size={24} />
-                    </div>
-                    <div className="ms-3">
-                      <h6 className="mb-0">Domains</h6>
-                      <h3 className="mb-0">{uniqueDomains.length}</h3>
-                    </div>
-                  </div>
-                </Card.Body>
-              </Card>
-            </motion.div>
-          </Col>
-
-          <Col md={4}>
-            <motion.div whileHover={{ scale: 1.02 }} className="h-100">
-              <Card className="stat-card h-100">
-                <Card.Body>
-                  <div className="d-flex align-items-center">
-                    <div className="stat-icon">
-                      <FiDollarSign size={24} />
-                    </div>
-                    <div className="ms-3">
-                      <h6 className="mb-0">Total Funding</h6>
-                      <h3 className="mb-0">
-                        ${groupedDomains.reduce((sum, domain) => sum + (domain.totalFunding || 0), 0).toLocaleString()}
-                      </h3>
-                    </div>
-                  </div>
-                </Card.Body>
-              </Card>
-            </motion.div>
-          </Col>
+          {[{
+            icon: <FiUsers size={24} />, label: "Total Startups", value: startups.length
+          }, {
+            icon: <FiTrendingUp size={24} />, label: "Domains", value: uniqueDomains.length
+          }, {
+            icon: <FiDollarSign size={24} />, label: "Total Funding",
+            value: `$${groupedDomains.reduce((sum, domain) => sum + (domain.totalFunding || 0), 0).toLocaleString()}`
+          }].map((stat, index) => (
+            <Col md={4} key={index}>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="h-100">
+                <Card className={`stat-card h-100 ${isDarkMode ? "dark" : ""}`}>
+                  <Card.Body>
+                    <motion.div
+                      className="d-flex align-items-center"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="stat-icon">{stat.icon}</div>
+                      <div className="ms-3">
+                        <h6 className="mb-0">{stat.label}</h6>
+                        <motion.h3
+                          className="mb-0"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          {stat.value}
+                        </motion.h3>
+                      </div>
+                    </motion.div>
+                  </Card.Body>
+                </Card>
+              </motion.div>
+            </Col>
+          ))}
         </Row>
-
+  
         {/* Filter Section */}
         <Row className="mb-4">
           <Col>
@@ -181,7 +230,9 @@ const FundersHome = () => {
                     {selectedDomainFilter || "All Domains"}
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => setSelectedDomainFilter(null)}>All Domains</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setSelectedDomainFilter(null)}>
+                      All Domains
+                    </Dropdown.Item>
                     {businessDomains.map((domain) => (
                       <Dropdown.Item key={domain} onClick={() => setSelectedDomainFilter(domain)}>
                         {domain}
@@ -193,128 +244,113 @@ const FundersHome = () => {
             </Card>
           </Col>
         </Row>
-
+  
         {/* Domain Sections */}
         <AnimatePresence>
-          {uniqueDomains.map((domainName, index) => (
+          {(selectedDomainFilter ? uniqueDomains.filter(d => d === selectedDomainFilter) : uniqueDomains).map((domainName, index) => (
             <motion.div
               key={domainName}
-              className="domain-section"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
             >
-              <div className="domain-header">
-                <h2 className="domain-section-header">{domainName}</h2>
-                <Badge bg={isDarkMode ? "info" : "primary"} pill className="domain-count">
-                  {groupedDomains.find(d => d.name === domainName)?.count || 0} Startups
-                </Badge>
-              </div>
-              
-              <Row className="g-4">
-                {groupedDomains
-                  .filter((domain) => domain.name === domainName)
-                  .map((domain) => (
-                    domain.startups.map((startup, startupIndex) => (
-                      <Col key={`${startup.name}-${startupIndex}`} md={6} lg={4}>
-                        <motion.div
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="h-100"
-                        >
-                          <Card className={`startup-card h-100 ${isDarkMode ? "dark" : ""}`}>
+              <Card className={`mb-4 domain-card ${isDarkMode ? "dark" : ""}`}>
+                <Card.Body>
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h4>{domainName}</h4>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={() => generatePDF({
+                        name: domainName,
+                        startups: startups.filter(s => s.domain === domainName),
+                        count: startups.filter(s => s.domain === domainName).length,
+                        totalFunding: startups
+                          .filter(s => s.domain === domainName)
+                          .reduce((sum, s) => sum + parseFloat(s.funding || 0), 0)
+                      })}
+                    >
+                      <FiDownload className="me-2" /> Export PDF
+                    </Button>
+                  </div>
+                  <Row>
+                    {startups
+                      .filter(startup => startup.domain === domainName)
+                      .map(startup => (
+                        <Col key={startup.name} md={4} className="mb-3">
+                          <Card className="h-100 startup-card">
                             <Card.Body>
-                              <div className="startup-header">
-                                <h4>{startup.name}</h4>
-                                <Badge bg={isDarkMode ? "info" : "primary"} pill>
-                                  {domainName}
-                                </Badge>
-                              </div>
-                              
-                              <div className="startup-details">
-                                <div className="detail-item">
-                                  <FiUsers className="detail-icon" />
-                                  <span>Founder: {startup.founderName || 'N/A'}</span>
-                                </div>
-                                <div className="detail-item">
-                                  <FiDollarSign className="detail-icon" />
-                                  <span>Funding: ${parseFloat(startup.funding || 0).toLocaleString()}</span>
-                                </div>
-                                {startup.email && (
-                                  <div className="detail-item clickable">
-                                    <FiMail className="detail-icon" />
-                                    <a href={`mailto:${startup.email}`} className="contact-link">
-                                      <span>Email: {startup.email}</span>
-                                    </a>
-                                  </div>
-                                )}
-                                {startup.phone && (
-                                  <div className="detail-item clickable">
-                                    <FiPhone className="detail-icon" />
-                                    <div className="contact-options">
-                                      <a href={`tel:${startup.phone}`} className="contact-link phone">
-                                        <span>{startup.phone}</span>
-                                        <FiPhone className="action-icon" />
-                                      </a>
-                                      <a href={`sms:${startup.phone}`} className="contact-link sms">
-                                        <FiMessageSquare className="action-icon" />
-                                      </a>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <div className="communication-actions">
-                                {startup.phone && (
-                                  <>
-                                    <a
-                                      href={`tel:${startup.phone}`}
-                                      className="comm-button call"
-                                      title="Call"
-                                    >
-                                      <FiPhone />
-                                    </a>
-                                    <a
-                                      href={`sms:${startup.phone}`}
-                                      className="comm-button message"
-                                      title="Message"
-                                    >
-                                      <FiMessageSquare />
-                                    </a>
-                                  </>
-                                )}
-                                {startup.email && (
-                                  <a
-                                    href={`mailto:${startup.email}`}
-                                    className="comm-button email"
-                                    title="Email"
+                              <Card.Title>{startup.name}</Card.Title>
+                              <Card.Text>
+                                Current Funding: ${parseFloat(startup.funding || 0).toLocaleString()}
+                              </Card.Text>
+                              <div className="d-flex flex-column gap-2">
+                                <div className="d-flex justify-content-between">
+                                  <Button 
+                                    variant="primary" 
+                                    size="sm" 
+                                    onClick={() => handleFund(startup)}
                                   >
-                                    <FiMail />
-                                  </a>
-                                )}
-                              </div>
-                              
-                              <div className="startup-actions mt-3">
+                                    <FiDollarSign className="me-1" /> Fund
+                                  </Button>
+                                  <Button
+                                    variant="outline-secondary"
+                                    size="sm"
+                                    onClick={() => generatePDF(startup, 'startup')}
+                                  >
+                                    <FiDownload className="me-1" /> Details
+                                  </Button>
+                                </div>
                                 <Button
-                                  variant="outline-primary"
+                                  variant="outline-info"
                                   size="sm"
-                                  onClick={() => generatePDF(startup, 'startup')}
-                                  className="d-flex align-items-center"
+                                  onClick={() => downloadStartupPDF(startup)}
+                                  className="w-100"
                                 >
-                                  <FiDownload className="me-2" />
-                                  Export Details
+                                  <FiDownload className="me-1" /> Explore Business Plan
                                 </Button>
                               </div>
                             </Card.Body>
                           </Card>
-                        </motion.div>
-                      </Col>
-                    ))
-                  ))}
-              </Row>
+                        </Col>
+                    ))}
+                  </Row>
+                </Card.Body>
+              </Card>
             </motion.div>
           ))}
         </AnimatePresence>
+  
+        {/* Funding Modal */}
+        <Modal show={showFundingModal} onHide={() => setShowFundingModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Fund {selectedStartup?.name}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group>
+                <Form.Label>Enter Funding Amount ($)</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="Enter amount"
+                  value={fundingAmount}
+                  onChange={(e) => setFundingAmount(e.target.value)}
+                  min="0"
+                  step="0.01"
+                />
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowFundingModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleFundingSubmit}>
+              Confirm Funding
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );

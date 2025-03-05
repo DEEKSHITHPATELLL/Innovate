@@ -27,6 +27,9 @@ const registerStartup = async (req, res) => {
     // Hash the password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create file URL
+    const fileUrl = `/uploads/${req.file.filename}`;
+
     // Create a new Startup entry
     const newStartup = new Startup({
       name,
@@ -35,11 +38,18 @@ const registerStartup = async (req, res) => {
       phoneNumber,
       location,
       domain,
-      uploadedFile: req.file.path, // Save the file path
+      uploadedFile: fileUrl, // Save the file URL
     });
 
     await newStartup.save();
-    res.status(201).json({ message: 'Startup registered successfully' });
+    
+    // Return success with file URL
+    res.status(201).json({ 
+      message: 'Startup registered successfully',
+      id: newStartup._id,
+      fileUrl: fileUrl,
+      fileName: req.file.originalname
+    });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Internal server error' });

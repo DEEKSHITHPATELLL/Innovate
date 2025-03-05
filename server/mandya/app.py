@@ -21,18 +21,9 @@ import shutil
 import io
 import tempfile
 import subprocess
-
-
-# Initialize Flask app
 app = Flask(__name__)
-
-# Enable CORS for all domains (for development purposes, change for production)
 CORS(app)
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
-# Load the saved model, encoders, and dataset
 try:
     with open('model.pkl', 'rb') as model_file:
         model = pickle.load(model_file)
@@ -42,26 +33,19 @@ try:
 
     with open('label_encoder_business.pkl', 'rb') as le_business_file:
         label_encoder_business = pickle.load(le_business_file)
-
-    # Load the dataset used for training
-    dataset = pd.read_csv('./data/training.csv')  # Replace with your dataset file path
+    dataset = pd.read_csv('./data/training.csv')  
     logging.info("Model, encoders, and dataset loaded successfully.")
 
 except FileNotFoundError as e:
     logging.error(f"Error loading files: {str(e)}")
     exit()
-
-# Load environment variables
 load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-model_chat = genai.GenerativeModel("gemini-pro")
+model_chat = genai.GenerativeModel("gemini-1.5-pro")
 chat = model_chat.start_chat(history=[])
-
-# Predict route to make predictions
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Get input data from the request
         data = request.get_json()
         logging.info(f"Received data: {data}")
 

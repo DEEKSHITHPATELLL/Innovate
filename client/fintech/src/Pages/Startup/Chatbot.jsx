@@ -27,29 +27,39 @@ function Chatbot() {
 
   const sendMessage = async () => {
     if (input.trim()) {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "user", text: input },
+      ]);
+  
+      setIsTyping(true);
+      try {
+        const response = await axios.post("http://127.0.0.1:5000/chat", {
+          message: input,
+        });
+  
         setMessages((prevMessages) => [
-            ...prevMessages,
-            { sender: "user", text: input },
+          ...prevMessages,
+          { sender: "bot", text: response.data.reply },
         ]);
-        
-        setIsTyping(true);
-        try {
-            const response = await axios.post("http://localhost:5000/chat", {
-                message: input,
-            });
-
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                { sender: "bot", text: response.data.reply },
-            ]);
-            setIsTyping(false);
-        } catch (error) {
-            console.error("Error sending message:", error);
-            setIsTyping(false);
+      } catch (error) {
+        console.error("Error sending message:", error);
+        if (error.response) {
+          console.error("Server Response Data:", error.response.data);
+          console.error("Server Response Status:", error.response.status);
+        } else {
+          console.error("Error Message:", error.message);
         }
-        setInput("");
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: "bot", text: "Error communicating with server. Please try again." },
+        ]);
+      }
+      setIsTyping(false);
+      setInput("");
     }
-};
+  };
+  
 
   const uploadFile = async () => {
     if (file) {
@@ -62,7 +72,7 @@ function Chatbot() {
           { sender: "user", text: `Uploading file: ${file.name}...` },
         ]);
 
-        const response = await axios.post("http://localhost:5000/upload", formData, {
+        const response = await axios.post("http://127.0.0.1:5000/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
