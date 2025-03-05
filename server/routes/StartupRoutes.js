@@ -8,6 +8,7 @@ const {
   loginStartup,
   authenticate,
   getDashboard,
+  sendEmail
 } = require('../controllers/StartupController');
 
 // Define the uploads directory and ensure it exists
@@ -39,5 +40,6 @@ const upload = multer({
 router.post('/register', upload.single('uploadedFile'), registerStartup);
 router.post('/login', loginStartup);
 router.get('/dashboard', authenticate, getDashboard);
+router.post('/send-email', sendEmail);
 
 module.exports = router;

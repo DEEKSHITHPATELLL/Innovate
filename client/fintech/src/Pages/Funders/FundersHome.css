@@ -391,3 +391,78 @@
 .domain-section {
   animation: fadeIn 0.5s ease-out;
 }
+
+/* Contact Button Styles */
+.contact-btn {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.contact-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contact-btn .icon {
+  font-size: 1.1em;
+}
+
+/* Email Modal Styles */
+.email-modal .modal-content {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.email-modal .modal-header {
+  padding: 1.5rem;
+  background-color: var(--bs-light);
+}
+
+.email-modal .modal-body {
+  padding: 1.5rem;
+}
+
+.email-modal .modal-footer {
+  padding: 1.25rem 1.5rem;
+  background-color: var(--bs-light);
+}
+
+.email-modal .form-control {
+  border: 1.5px solid #dee2e6;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.email-modal .form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.email-modal .btn {
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+}
+
+/* Dark mode styles */
+.dark-mode .email-modal .modal-content {
+  background-color: #2b2b2b;
+  color: #fff;
+}
+
+.dark-mode .email-modal .modal-header,
+.dark-mode .email-modal .modal-footer {
+  background-color: #222;
+  border-color: #444;
+}
+
+.dark-mode .email-modal .form-control {
+  background-color: #333;
+  border-color: #444;
+  color: #fff;
+}
+
+.dark-mode .email-modal .form-control:focus {
+  background-color: #3a3a3a;
+  border-color: #0d6efd;
+}

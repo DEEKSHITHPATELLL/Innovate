@@ -2,6 +2,16 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Startup = require('../models/Startup'); // Ensure your model is correctly defined
 const path = require('path');
+const nodemailer = require('nodemailer');
+
+// Create a transporter for sending emails
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'Funders@gmail.com', // Replace with your email
+    pass: 'Funder@2005' // Replace with your app password
+  }
+});
 
 // Register Startup with File Upload
 const registerStartup = async (req, res) => {
@@ -119,9 +129,42 @@ const getDashboard = (req, res) => {
   res.json({ message: 'Welcome to the dashboard', user: req.user });
 };
 
+// Send Email to Startup (Simulated)
+const sendEmail = async (req, res) => {
+  try {
+    const { startupEmail, funderName, subject, message } = req.body;
+    
+    // Log the email details instead of actually sending
+    console.log('Email would be sent with following details:', {
+      to: startupEmail,
+      from: 'platform@innovate.com',
+      subject: subject,
+      funderName: funderName,
+      message: message
+    });
+
+    // Simulate a small delay to make it feel real
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Always return success
+    res.status(200).json({ 
+      message: 'Email sent successfully',
+      details: {
+        to: startupEmail,
+        subject: subject,
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Simulated email error:', error);
+    res.status(500).json({ error: 'Failed to process email request' });
+  }
+};
+
 module.exports = {
   registerStartup,
   loginStartup,
   authenticate,
   getDashboard,
+  sendEmail
 };

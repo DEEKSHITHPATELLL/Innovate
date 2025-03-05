@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, Dropdown, Badge, Modal, Form } from 'react-bootstrap';
-import { FiFilter, FiDownload, FiTrendingUp, FiUsers, FiDollarSign, FiMoon, FiSun, FiPhone, FiMail, FiMessageSquare } from 'react-icons/fi';
+import { Container, Row, Col, Card, Button, Dropdown, Badge, Modal, Form, Alert } from 'react-bootstrap';
+import { FiFilter, FiDownload, FiTrendingUp, FiUsers, FiDollarSign, FiMoon, FiSun, FiPhone, FiMail, FiMessageSquare, FiSend, FiUser } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 import './FundersHome.css';
-
 const businessDomains = [
   "Gym",
   "Pharmacy",
@@ -31,6 +32,14 @@ const FundersHome = () => {
   const [showFundingModal, setShowFundingModal] = useState(false);
   const [selectedStartup, setSelectedStartup] = useState(null);
   const [fundingAmount, setFundingAmount] = useState('');
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailData, setEmailData] = useState({
+    funderName: '',
+    message: '',
+    subject: ''
+  });
+  const [sending, setSending] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   useEffect(() => {
     document.body.classList.toggle('dark-mode', isDarkMode);
@@ -161,6 +170,61 @@ const FundersHome = () => {
       }
       
       doc.save(`${data.name}_profile.pdf`);
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    const { name, value } = e.target;
+    setEmailData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setEmailError('');
+  };
+
+  const handleSendEmail = async () => {
+    if (!emailData.funderName.trim() || !emailData.message.trim() || !emailData.subject.trim()) {
+      setEmailError('Please fill in all fields');
+      return;
+    }
+
+    setSending(true);
+    try {
+      const response = await axios.post('http://localhost:8000/api/startup/send-email', {
+        startupEmail: selectedStartup.email,
+        funderName: emailData.funderName,
+        subject: emailData.subject,
+        message: emailData.message
+      });
+
+      // Show success message
+      toast.success(`Message sent to ${selectedStartup.name}!`, {
+        duration: 3000,
+        position: 'top-center',
+      });
+      
+      // Close modal and reset form
+      setShowEmailModal(false);
+      setEmailData({
+        funderName: '',
+        message: '',
+        subject: ''
+      });
+
+      // Add to sent messages in localStorage
+      const sentMessages = JSON.parse(localStorage.getItem('sentMessages') || '[]');
+      sentMessages.push({
+        to: selectedStartup.name,
+        subject: emailData.subject,
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem('sentMessages', JSON.stringify(sentMessages));
+
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Could not send message. Please try again.');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -303,6 +367,18 @@ const FundersHome = () => {
                                   </Button>
                                 </div>
                                 <Button
+                                  variant="outline-primary"
+                                  size="sm"
+                                  className="contact-btn d-flex align-items-center gap-2"
+                                  onClick={() => {
+                                    setSelectedStartup(startup);
+                                    setShowEmailModal(true);
+                                  }}
+                                >
+                                  <FiMail className="icon" />
+                                  <span>Contact Startup</span>
+                                </Button>
+                                <Button
                                   variant="outline-info"
                                   size="sm"
                                   onClick={() => downloadStartupPDF(startup)}
@@ -351,8 +427,117 @@ const FundersHome = () => {
             </Button>
           </Modal.Footer>
         </Modal>
+
+        {/* Email Modal */}
+        <Modal 
+          show={showEmailModal} 
+          onHide={() => {
+            setShowEmailModal(false);
+            setEmailError('');
+            setEmailData({
+              funderName: '',
+              message: '',
+              subject: ''
+            });
+          }}
+          className="email-modal"
+        >
+          <Modal.Header closeButton className="border-bottom">
+            <Modal.Title className="h5">
+              <FiMail className="me-2" />
+              Contact {selectedStartup?.name}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {emailError && (
+              <Alert variant="danger" className="mb-3">
+                {emailError}
+              </Alert>
+            )}
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label>
+                  <FiUser className="me-2" />
+                  Your Name
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  name="funderName"
+                  placeholder="Enter your name"
+                  value={emailData.funderName}
+                  onChange={handleEmailChange}
+                  className="rounded-3"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>
+                  <FiMessageSquare className="me-2" />
+                  Subject
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  name="subject"
+                  placeholder="Enter email subject"
+                  value={emailData.subject}
+                  onChange={handleEmailChange}
+                  className="rounded-3"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>
+                  <FiMessageSquare className="me-2" />
+                  Message
+                </Form.Label>
+                <Form.Control
+                  as="textarea"
+                  name="message"
+                  rows={4}
+                  placeholder="Enter your message to the startup"
+                  value={emailData.message}
+                  onChange={handleEmailChange}
+                  className="rounded-3"
+                />
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer className="border-top">
+            <Button 
+              variant="secondary" 
+              onClick={() => {
+                setShowEmailModal(false);
+                setEmailError('');
+                setEmailData({
+                  funderName: '',
+                  message: '',
+                  subject: ''
+                });
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="primary" 
+              onClick={handleSendEmail}
+              disabled={sending}
+              className="d-flex align-items-center gap-2"
+            >
+              {sending ? (
+                <>
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  <span>Sending...</span>
+                </>
+              ) : (
+                <>
+                  <FiSend />
+                  <span>Send Message</span>
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );
 };
+
 export default FundersHome;
