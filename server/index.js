@@ -23,10 +23,6 @@ app.use(cors({
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-funderDB.once('open', () => console.log('Connected to funderDB'));
-peopleDB.once('open', () => console.log('Connected to peopleDB'));
-startupDB.once('open', () => console.log('Connected to startupDB'));
-
 app.use('/api/funder', Funder);
 app.use('/api/startup', Startup);
 app.use('/api/people', People);

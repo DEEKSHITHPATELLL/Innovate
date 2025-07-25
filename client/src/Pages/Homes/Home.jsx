@@ -70,7 +70,7 @@ const Home = () => {
                 transition={{ duration: 0.8 }}
               >
                 <h1 className="hero-title">
-                  Welcome to <span className="gradient-text">Agro-Nova</span>
+                  Welcome to <span className="gradient-text">Innovate</span>
                 </h1>
                 <p className="hero-subtitle">
                   Empowering the next generation of entrepreneurs. Build, fund, and grow your dreams with our comprehensive ecosystem.
